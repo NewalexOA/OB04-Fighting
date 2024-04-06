@@ -27,52 +27,53 @@ class Bow(Weapon):
 
 # Абстрактный класс существа
 class Creature(ABC):
+    def __init__(self, name, health):
+        self.name = name
+        self.health = health
+
     @abstractmethod
     def attack(self):
         pass
 
 # Класс бойца
 class Fighter(Creature):
-    def __init__(self, name, weapon: Weapon):
-        self.name = name
+    def __init__(self, name, health, weapon: Weapon):
+        super().__init__(name, health)
         self.weapon = weapon
 
     def changeWeapon(self, new_weapon: Weapon):
         self.weapon = new_weapon
 
     def attack(self):
-        return f"Боец {self.name} {self.weapon.attack()}"
+        return f"{self.name} {self.weapon.attack()}"
 
 # Класс монстра
 class Monster(Creature):
-    def __init__(self, name, health):
-        self.name = name
-        self.health = health
+    def __init__(self, name, health, weapon: Weapon):
+        super().__init__(name, health)
+        self.weapon = weapon
 
     def attack(self):
-        return f"Монстр {self.name} атакует!"
+        return f"{self.name} {self.weapon.attack()}"
 
-# Простой механизм боя
+# Механизм боя
 def battle(fighter: Fighter, monster: Monster):
-    attack_message = fighter.attack()
-    print(attack_message)
-    damage = fighter.weapon.damage
-    monster.health -= damage
+    print(fighter.attack())
+    monster.health -= fighter.weapon.damage
     if monster.health <= 0:
         print(f"{monster.name} побежден!")
+        return
+    print(monster.attack())
+    fighter.health -= monster.weapon.damage
+    if fighter.health <= 0:
+        print(f"{fighter.name} побежден!")
     else:
-        print(f"У {monster.name} осталось {monster.health} здоровья.")
+        print(f"У {fighter.name} осталось {fighter.health} здоровья. У {monster.name} осталось {monster.health} здоровья.")
 
 # Демонстрация
 sword = Sword()
 bow = Bow()
-fighter = Fighter("Артур", sword)
-monster = Monster("Горгулья", 30)
+attacker = Fighter("Рыцарь", 100, sword)
+defender = Monster("Орк", 80, bow)
 
-# Боец выбирает меч
-battle(fighter, monster)
-
-# Боец меняет оружие на лук
-fighter.changeWeapon(bow)
-# Боец выбирает лук
-battle(fighter, monster)
+battle(attacker, defender)
